@@ -6,7 +6,7 @@ import { PostSchema } from '../schemas/post/post.schema';
 import { ResponseWrapper } from '../ultils/app.wrapper';
 import { ApiOperation, ApiResponse, ApiTags, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt.authguard';
-import { PaginatedResponse } from 'src/interface/paginated.response';
+import { PaginatedResponse } from '../interface/paginated.response';
 
 @ApiTags('posts') // Group endpoints under the "posts" tag
 @Controller('posts')

@@ -1,11 +1,11 @@
 export class ResponseWrapper<T> {
     data: T;
     message: string;
-    code: number;
+    statusCode: number;
 
-    constructor(data: T, message: string = "Success", code: number = 200) {
+    constructor(data: T, message: string = "Success", statusCode: number = 200) {
         this.data = data;
         this.message = message;
-        this.code = code;
+        this.statusCode = statusCode;
     }
 }

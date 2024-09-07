@@ -15,4 +15,13 @@ export class MediaSchema {
 
     @ApiProperty({ example: 'example', description: 'The filename without extension' })
     filename?: string;
+
+    @ApiProperty({ example: 'http://abc.com/def.ong', description: 'full url' })
+    url?: string;
+
+    @ApiProperty({ example: 'S3 / LOCAL', description: 'AWS Simple Object Storage or Local' })
+    storage?: string;
+
+    @ApiProperty({ example: 'UUID', description: 'The uuid of the uploadeder' })
+    userId?: string;
 }
