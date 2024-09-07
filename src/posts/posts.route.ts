@@ -1,8 +1,8 @@
 import { Module, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { PostsController } from './posts.controller';
 import { PostsService } from './posts.service';
-import { PrismaService } from '../prisma/prisma.service';
-import { AuthMiddleware } from '../middleware/auth.middleware';
+import { PrismaService } from '@/prisma/prisma.service';
+import { AuthMiddleware } from '@/middleware/auth.middleware';
 
 @Module({
     controllers: [PostsController],

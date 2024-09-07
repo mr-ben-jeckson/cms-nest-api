@@ -1,10 +1,10 @@
 import { Controller, Post, UploadedFile, UseInterceptors, Body, HttpException, HttpStatus, UseGuards } from '@nestjs/common';
 import { MediaService } from './media.service';
-import { ResponseWrapper } from '../ultils/app.wrapper';
+import { ResponseWrapper } from '@/ultils/app.wrapper';
 import { ApiTags, ApiOperation, ApiResponse, ApiConsumes, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { GetUserId } from '../ultils/app.user.decorator';
-import { JwtAuthGuard } from '../auth/jwt.authguard';
+import { GetUserId } from '@/ultils/app.user.decorator';
+import { JwtAuthGuard } from '@/auth/jwt.authguard';
 
 @ApiTags('media')
 @Controller('media')

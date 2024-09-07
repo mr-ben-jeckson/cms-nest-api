@@ -1,7 +1,7 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { mkdirSync, existsSync } from 'fs';
 import { Media, Prisma } from '@prisma/client';
-import { PrismaService } from './../prisma/prisma.service';
+import { PrismaService } from '@/prisma/prisma.service';
 import { v4 as uuidv4 } from 'uuid';  // Import UUID library
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import * as fs from 'fs';

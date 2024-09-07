@@ -2,11 +2,11 @@ import { Controller, Get, Post, Body, Param, Put, Delete, Query, UseGuards } fro
 import { PostsService } from './posts.service';
 import { Post as PostModel } from '@prisma/client';
 import { Prisma } from '@prisma/client';
-import { PostSchema } from '../schemas/post/post.schema';
-import { ResponseWrapper } from '../ultils/app.wrapper';
+import { PostSchema } from '@/http/post/post.schema';
+import { ResponseWrapper } from '@/ultils/app.wrapper';
 import { ApiOperation, ApiResponse, ApiTags, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/jwt.authguard';
-import { PaginatedResponse } from '../interface/paginated.response';
+import { JwtAuthGuard } from '@/auth/jwt.authguard';
+import { PaginatedResponse } from '@/interface/paginated.response';
 
 @ApiTags('posts') // Group endpoints under the "posts" tag
 @Controller('posts')

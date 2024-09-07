@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '@/prisma/prisma.service';
 import { Post, Prisma } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';  // Import UUID library
 import slugify from 'slugify';
-import { PaginatedResponse } from 'src/interface/paginated.response';
+import { PaginatedResponse } from '@/interface/paginated.response';
 
 @Injectable()
 export class PostsService {
