@@ -12,6 +12,7 @@ import * as mime from 'mime-types';
 export class MediaService {
     private readonly s3Client: S3Client;
     private readonly storagePath = 'storage/images'; // Local storage path
+    private readonly s3Path = process.env.S3_PATH || 'cms-api';
 
     constructor(
         private readonly prisma: PrismaService
@@ -31,20 +32,23 @@ export class MediaService {
         const extension = mime.extension(mimetype) || '';
         const filename = path.basename(originalname, `.${extension}`);
         const storage = process.env.STORAGE || 'LOCAL';
-        const filePath = path.join(this.storagePath, originalname);
+        const uniqueId = uuidv4(); // Generate a unique ID
+        const uniqueFilename = `${uniqueId}.${extension}`; // Create a unique filename
+        const filePath = path.join(this.storagePath, uniqueFilename);
 
         if (storage === 'S3') {
             try {
                 // Upload to S3
-                const uploadResult = await this.s3Client.send(
+                const s3Key = `${this.s3Path}${originalname}`;
+                await this.s3Client.send(
                     new PutObjectCommand({
                         Bucket: process.env.S3_BUCKET_NAME,
-                        Key: originalname,
+                        Key: s3Key,
                         Body: file.buffer,
                         ContentType: mimetype,
                     })
                 );
-                const s3Url = `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${originalname}`;
+                const s3Url = `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${s3Key}`;
                 return {
                     originalName: originalname,
                     filename,
@@ -65,7 +69,7 @@ export class MediaService {
                     mkdirSync(this.storagePath, { recursive: true });
                 }
                 fs.writeFileSync(filePath, file.buffer);
-                const localUrl = `http://localhost:3000/${this.storagePath}/${originalname}`;
+                const localUrl = `http://localhost:3000/${this.storagePath}/${uniqueFilename}`;
                 return {
                     originalName: originalname,
                     filename,

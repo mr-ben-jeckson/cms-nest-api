@@ -2,10 +2,12 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
+import { StaticFileMiddleware } from './middleware/files.middleware';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
+  app.use('/storage', new StaticFileMiddleware().use);
+  // Swagger setup
   const config = new DocumentBuilder()
     .setTitle('CMS API')
     .setDescription('The CMS API description')
@@ -14,7 +16,9 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
-  app.enableCors()
+
+  // Middleware setup
+  app.enableCors();
   app.useGlobalPipes(new ValidationPipe());
   await app.listen(3000);
 }
