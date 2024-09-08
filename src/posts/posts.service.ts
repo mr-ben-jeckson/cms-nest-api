@@ -60,6 +60,7 @@ export class PostsService {
             nextLink,
             previousLink,
             totalRows,
+            per_page: limit,
         };
     }
 

@@ -7,6 +7,7 @@ import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as mime from 'mime-types';
+import { PaginatedResponse } from '@/interface/paginated.response';
 
 @Injectable()
 export class MediaService {
@@ -94,5 +95,45 @@ export class MediaService {
                 id: mediaId, // Set the generated UUID as the media ID
             },
         });
+    }
+
+    async getLimitedMedia(
+        page: number = 1,
+        limit: number = 10,
+        sortField: string = 'createdAt',
+        sortDirection: 'asc' | 'desc' = 'desc',
+        searchQuery: string | null = '',
+        userId: string | null = null,
+    ): Promise<PaginatedResponse<Media[]>> {
+        const offset = (page - 1) * limit;
+        const whereClause: any = {};
+        if (searchQuery) {
+            whereClause.OR = [
+                { originalName: { contains: searchQuery.toLowerCase() } },
+                { filename: { contains: searchQuery.toLowerCase() } },
+            ];
+        }
+        if (userId) {
+            whereClause.userId = userId;
+        }
+        const totalRecords = await this.prisma.media.count({ where: whereClause });
+        const media = await this.prisma.media.findMany({
+            where: whereClause,
+            orderBy: {
+                [sortField]: sortDirection,
+            },
+            skip: offset,
+            take: limit,
+        });
+        const nextPage = page + 1;
+        const previousPage = page - 1;
+        return {
+            data: media,
+            current_page: page,
+            nextLink: offset + limit < totalRecords ? `/media?page=${nextPage}&limit=${limit}&sortField=${sortField}&sortDirection=${sortDirection}&searchQuery=${searchQuery}` : null,
+            previousLink: page > 1 ? `/media?page=${previousPage}&limit=${limit}&sortField=${sortField}&sortDirection=${sortDirection}&searchQuery=${searchQuery}` : null,
+            totalRows: totalRecords,
+            per_page: limit,
+        };
     }
 }

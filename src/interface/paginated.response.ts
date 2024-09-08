@@ -4,4 +4,5 @@ export interface PaginatedResponse<T> {
     nextLink: string | null;
     previousLink: string | null;
     totalRows: number;
+    per_page: number;
 }

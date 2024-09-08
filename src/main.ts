@@ -6,7 +6,7 @@ import { StaticFileMiddleware } from '@/middleware/files.middleware';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.use('/storage', new StaticFileMiddleware().use);
+  app.use('/storage', new StaticFileMiddleware().use); // File Direct
   // Swagger setup
   const config = new DocumentBuilder()
     .setTitle('CMS API')

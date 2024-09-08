@@ -20,7 +20,7 @@ async function main() {
 
     console.log('User seeded:', user);
 }
-
+  
 main()
     .catch((e) => {
         console.error(e);
