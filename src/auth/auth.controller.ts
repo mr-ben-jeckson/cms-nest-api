@@ -2,7 +2,7 @@ import { ResponseWrapper } from '@/ultils/app.wrapper';
 import { Controller, Post, Body, Req } from '@nestjs/common';
 import { AuthService } from '@/auth/auth.service';
 import { Request } from 'express';
-import { LoginSchema } from '@/http/login.schema';
+import { LoginSchema } from '@/http/user/login.schema';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @Controller('api')

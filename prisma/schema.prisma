@@ -26,9 +26,12 @@ model Post {
 model User {
   id        String   @id @default(uuid()) @db.Char(36)
   email     String   @unique
-  name      String?
+  name      String
+  phone     String?
   password  String
   isAdmin   Boolean  @default(false)
+  profileId  String?  @db.Char(36)
+  profile    Media?   @relation("userProfile", fields: [profileId], references: [id])
   posts     Post[]
   media     Media[]  @relation("UserMedia")
 }
@@ -47,6 +50,7 @@ model Media {
   deletedAt      DateTime?   // Soft delete field
   userId         String
   user           User        @relation("UserMedia", fields: [userId], references: [id])
+  profileUsers   User[]      @relation("userProfile")
   posts          PostMedia[]
 }
 

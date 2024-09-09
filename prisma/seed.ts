@@ -18,7 +18,20 @@ async function main() {
         },
     });
 
-    console.log('User seeded:', user);
+    console.log('Admin seeded:', user);
+
+    const passwordHashUser = await bcrypt.hash('user123', 10);
+    const user2 = await prisma.user.create({
+        data: {
+            id: uuidv4(),  // Replace with a UUID if necessary
+            email: 'user@gmail.com',
+            name: 'User',
+            password: passwordHashUser,
+            isAdmin: false,
+        },
+    });
+    
+    console.log('User seeded:', user2);
 }
   
 main()
