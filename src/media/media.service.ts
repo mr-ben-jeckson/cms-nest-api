@@ -38,10 +38,10 @@ export class MediaService {
         const uniqueFilename = `${uniqueId}.${extension}`; // Create a unique filename
         const filePath = path.join(this.storagePath, uniqueFilename);
 
-        if (storage === 'S3') {
+        if (storage == "S3") {
             try {
                 // Upload to S3
-                const s3Key = `${this.s3Path}${originalname}`;
+                const s3Key = `${this.s3Path}/${uniqueFilename}`;
                 await this.s3Client.send(
                     new PutObjectCommand({
                         Bucket: process.env.S3_BUCKET_NAME,
@@ -52,8 +52,8 @@ export class MediaService {
                 );
                 const s3Url = `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${s3Key}`;
                 return {
-                    originalName: originalname,
-                    filename,
+                    originalName: uniqueFilename,
+                    filename: originalname,
                     mimeType: mimetype,
                     extension,
                     size,
