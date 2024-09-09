@@ -1,11 +1,12 @@
-import { Controller, Post, Get, UploadedFile, UseInterceptors, Body, HttpException, HttpStatus, UseGuards, Query } from '@nestjs/common';
+import { Controller, Post, Get, UploadedFile, UseInterceptors, Body, HttpException, HttpStatus, UseGuards, Query, Put, Param, Delete } from '@nestjs/common';
 import { MediaService } from './media.service';
 import { ResponseWrapper } from '@/ultils/app.wrapper';
-import { ApiTags, ApiOperation, ApiResponse, ApiConsumes, ApiBody, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiConsumes, ApiBody, ApiBearerAuth, ApiQuery, ApiParam } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { GetUserId } from '@/ultils/app.user.decorator';
 import { JwtAuthGuard } from '@/auth/jwt.authguard';
 import { UserService } from '@/users/users.service';
+import { UpdateMedia } from '@/http/media/update.media.shema';
 
 @ApiTags('media')
 @Controller('media')
@@ -74,4 +75,59 @@ export class MediaController {
         const data = await this.mediaService.getLimitedMedia(page, limit, sortField, sortDirection, searchQuery, userId || null);
         return new ResponseWrapper(data, "Limited Media", 200);
     }
+
+    @Get(':id')
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    @ApiResponse({ status: 200, description: 'Successful retrieval of media' })
+    @ApiResponse({ status: 404, description: 'Media Not Found' })
+    async getMedia(@Param('id') id: string) {
+        const data = await this.mediaService.getMediaById(id, null);
+        return new ResponseWrapper(data, "Media", 200);
+    }
+
+    // Only Allowed to Change File Name
+    @Put(':id')
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    @ApiParam({ name: 'id', type: String, required: true, description: 'Media ID' })
+    @ApiBody({ type: UpdateMedia })
+    @ApiResponse({ status: 200, description: 'Successful update of media' })
+    @ApiResponse({ status: 404, description: 'Media Not Found' })
+    async updateMedia(@Body() FormInput: UpdateMedia ,@GetUserId() userId: string, @Param('id') id: string) {
+        const userData = await this.userService.getUserById(userId);
+        if (userData && userData.isAdmin) {
+            const data = await this.mediaService.updateMedia(id, FormInput);
+            return new ResponseWrapper(data, "Media Updated", 200);
+        }
+        const data = await this.mediaService.getMediaById(id, userId);
+        if (!data) {
+            throw new HttpException('Media not found', HttpStatus.NOT_FOUND);
+        }
+        const updateData = await this.mediaService.updateMedia(id, FormInput);
+        return new ResponseWrapper(updateData, "Media Updated", 200);
+    }
+
+    // Delete Media
+    @Delete(':id')
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    @ApiParam({ name: 'id', type: String, required: true, description: 'Media ID' })
+    @ApiResponse({ status: 204, description: 'Success with No Content' })
+    @ApiResponse({ status: 404, description: 'Media Not Found' })
+    async deleteMedia(@Param('id') id: string, @GetUserId() userId: string) {
+        const userData = await this.userService.getUserById(userId);
+        if (userData && userData.isAdmin) {
+            await this.mediaService.deleteMedia(id);
+            return new ResponseWrapper(null, "Media Updated", 204); // For Admin
+        }
+        const data = await this.mediaService.getMediaById(id, userId);
+        if (!data) {
+            throw new HttpException('Media not found', HttpStatus.NOT_FOUND);
+        } else {
+            await this.mediaService.deleteMedia(id);
+            return new ResponseWrapper(null, "Media Updated", 204); // For User
+        }
+    }
+
 }

@@ -21,4 +21,7 @@ export class PostSchema {
 
     @ApiProperty({ description: 'The author ID of the post' })
     authorId: string;
+
+    @ApiProperty({ description: 'The media IDs of the post', type: 'array' })
+    mediaIds: string[];
 }

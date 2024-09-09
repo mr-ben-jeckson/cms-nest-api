@@ -8,6 +8,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as mime from 'mime-types';
 import { PaginatedResponse } from '@/interface/paginated.response';
+import { UpdateMedia } from '@/http/media/update.media.shema';
 
 @Injectable()
 export class MediaService {
@@ -116,6 +117,7 @@ export class MediaService {
         if (userId) {
             whereClause.userId = userId;
         }
+        whereClause.deletedAt = null;
         const totalRecords = await this.prisma.media.count({ where: whereClause });
         const media = await this.prisma.media.findMany({
             where: whereClause,
@@ -136,4 +138,32 @@ export class MediaService {
             per_page: limit,
         };
     }
+
+    async getMediaById(id: string, userId: string | null): Promise<Media | null> {
+        const whereClause: any = {};
+        if (userId) {
+            whereClause.userId = userId;
+        }
+        whereClause.id = id;
+        whereClause.deletedAt = null;
+        return this.prisma.media.findFirst({ where: whereClause });
+    }
+
+    async updateMedia(id: string, data: UpdateMedia): Promise<Media> {
+        return this.prisma.media.update({
+            where: { id },
+            data: {
+                filename: data.filename,
+                updatedAt: new Date()
+            },
+        });
+    }
+
+    async deleteMedia(id: string): Promise<Media> {
+        return this.prisma.media.update({
+            where: { id },
+            data: { deletedAt: new Date() },
+        });
+    }
+    
 }
