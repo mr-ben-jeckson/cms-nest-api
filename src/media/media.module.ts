@@ -3,11 +3,12 @@ import { Module } from '@nestjs/common';
 import { PrismaModule } from '@/prisma/prisma.module';
 import { MediaController } from './media.controller';
 import { MediaService } from './media.service';
-import { UserModule } from '@/users/users.route';
 
 @Module({
-    imports: [PrismaModule, UserModule],
+    imports: [
+        PrismaModule
+    ],
     controllers: [MediaController],
-    providers: [MediaService, UserService],
+    providers: [MediaService, UserService ],
 })
 export class MediaModule { }

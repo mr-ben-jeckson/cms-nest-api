@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
 import { User, Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt'; // Import bcrypt for password hashing
+import { PaginatedResponse } from '@/interface/paginated.response';
 
 @Injectable()
 export class UserService {
@@ -18,6 +19,44 @@ export class UserService {
                 isAdmin: false, // Ensure isAdmin is always false
             },
         });
+    }
+
+    // Limited Users
+    async getLimitedUsers(
+        page: number = 1,
+        limit: number = 10,
+        sortField: string = 'createdAt',
+        sortDirection: 'asc' | 'desc' = 'desc',
+        searchQuery: string | null = ''
+    ): Promise<PaginatedResponse<User[]>> {
+        const skip = (page - 1) * limit;
+        const whereClause: any = {};
+        if (searchQuery) {
+            whereClause.OR = [
+                { name: { contains: searchQuery.toLowerCase() } },
+                { email: { contains: searchQuery.toLowerCase() } },
+                { phone: { contains: searchQuery.toLowerCase() } },
+            ];
+        }
+        const totalRecords = await this.prisma.user.count({ where: whereClause });
+        const users = await this.prisma.user.findMany({
+            where: whereClause,
+            orderBy: {
+                [sortField]: sortDirection,
+            },
+            skip,
+            take: limit,
+        });
+        const nextPage = page + 1;
+        const previousPage = page - 1;
+        return {
+            data: users,
+            current_page: page,
+            nextLink: skip + limit < totalRecords ? `${process.env.API_ENDPOINT}/users?page=${nextPage}&limit=${limit}&sortField=${sortField}&sortDirection=${sortDirection}&searchQuery=${searchQuery}` : null,
+            previousLink: page > 1 ? `${process.env.API_ENDPOINT}/users?page=${previousPage}&limit=${limit}&sortField=${sortField}&sortDirection=${sortDirection}&searchQuery=${searchQuery}` : null,
+            totalRows: totalRecords,
+            per_page: limit,
+        };
     }
 
     // Retrieve a user by ID

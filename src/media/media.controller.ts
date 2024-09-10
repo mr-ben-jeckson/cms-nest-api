@@ -72,7 +72,7 @@ export class MediaController {
         if(userData && userData.isAdmin) {
             userId = null;
         }
-        const data = await this.mediaService.getLimitedMedia(page, limit, sortField, sortDirection, searchQuery, userId || null);
+        const data = await this.mediaService.getLimitedMedia(Number(page), Number(limit), sortField, sortDirection, searchQuery, userId || null);
         return new ResponseWrapper(data, "Limited Media", 200);
     }
 

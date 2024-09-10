@@ -132,8 +132,8 @@ export class MediaService {
         return {
             data: media,
             current_page: page,
-            nextLink: offset + limit < totalRecords ? `/media?page=${nextPage}&limit=${limit}&sortField=${sortField}&sortDirection=${sortDirection}&searchQuery=${searchQuery}` : null,
-            previousLink: page > 1 ? `/media?page=${previousPage}&limit=${limit}&sortField=${sortField}&sortDirection=${sortDirection}&searchQuery=${searchQuery}` : null,
+            nextLink: offset + limit < totalRecords ? `${process.env.API_ENDPOINT}/media?page=${nextPage}&limit=${limit}&sortField=${sortField}&sortDirection=${sortDirection}&searchQuery=${searchQuery}` : null,
+            previousLink: page > 1 ? `${process.env.API_ENDPOINT}/media?page=${previousPage}&limit=${limit}&sortField=${sortField}&sortDirection=${sortDirection}&searchQuery=${searchQuery}` : null,
             totalRows: totalRecords,
             per_page: limit,
         };

@@ -1,37 +1,28 @@
-import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
-import { PrismaService } from '@/prisma/prisma.service';
+import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { Request } from 'express';
+import { PrismaService } from '@/prisma/prisma.service';
 
 @Injectable()
 export class AdminGuard implements CanActivate {
     constructor(
         private readonly jwtService: JwtService,
-        private readonly prismaService: PrismaService
+        private readonly prismaService: PrismaService,
     ) { }
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
-        const request = context.switchToHttp().getRequest<Request>();
+        const request = context.switchToHttp().getRequest();
         const authHeader = request.headers.authorization;
 
         if (!authHeader) {
-            throw new ForbiddenException('Authorization header missing');
+            throw new UnauthorizedException('No authorization header');
         }
 
-        const token = authHeader.replace('Bearer ', '');
-        const decodedToken = this.jwtService.decode(token) as { sub: string }; 
-
-        if (!decodedToken?.sub) {
-            throw new ForbiddenException('Invalid token');
-        }
-
-        const user = await this.prismaService.user.findUnique({
-            where: { id: decodedToken.sub },
-            select: { isAdmin: true },
-        });
+        const token = authHeader.split(' ')[1];
+        const decodedToken = this.jwtService.verify(token);
+        const user = await this.prismaService.user.findUnique({ where: { id: decodedToken.sub } });
 
         if (!user || !user.isAdmin) {
-            throw new ForbiddenException('You do not have permission to access this resource.');
+            throw new UnauthorizedException('Access denied');
         }
 
         return true;
