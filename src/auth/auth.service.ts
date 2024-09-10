@@ -37,6 +37,10 @@ export class AuthService {
         this.blacklistedTokens.add(token);
     }
 
+    async register(registerInput: any): Promise<any> {
+        return this.userService.createUser(registerInput);
+    }
+
     // Check if token is blacklisted
     isTokenBlacklisted(token: string): boolean {
         return this.blacklistedTokens.has(token);

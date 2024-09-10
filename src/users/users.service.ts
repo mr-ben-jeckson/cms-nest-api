@@ -40,6 +40,17 @@ export class UserService {
         return user?.isAdmin || false;
     }
 
+    // Check if phone is already used
+    async isPhoneUsed(phone: string): Promise<boolean> {
+        const user = await this.prisma.user.findFirst({
+            where: { phone },
+        });
+        if(user.phone) {
+            return true;
+        }
+        return false;
+    }
+
     // Update a user by ID
     async updateUser(id: string, data: Prisma.UserUpdateInput): Promise<User> {
         return this.prisma.user.update({

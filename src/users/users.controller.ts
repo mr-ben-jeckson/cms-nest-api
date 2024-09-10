@@ -2,6 +2,8 @@ import { Controller, Get, Post, Put, Delete, Param, Body, NotFoundException } fr
 import { UserService } from './users.service';
 import { User } from '@prisma/client';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { RegisterSchema } from '@/http/user/register.schema';
+import { GetUserId } from '@/ultils/app.user.decorator';
 
 @ApiTags('users')
 @Controller('users')
@@ -13,7 +15,7 @@ export class UserController {
   @ApiResponse({ status: 201, description: 'User successfully created.' })
   @ApiResponse({ status: 400, description: 'Invalid input.' })
   @Post()
-  async createUser(@Body() data: { email: string; password: string; name?: string }): Promise<User> {
+  async createUser(@Body() data: RegisterSchema): Promise<User> {
     return this.userService.createUser(data);
   }
 

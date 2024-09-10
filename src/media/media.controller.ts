@@ -83,6 +83,12 @@ export class MediaController {
     @ApiResponse({ status: 404, description: 'Media Not Found' })
     async getMedia(@Param('id') id: string) {
         const data = await this.mediaService.getMediaById(id, null);
+        if(!data) {
+            throw new HttpException(
+                new ResponseWrapper(null, "Media Not Found", HttpStatus.NOT_FOUND).toResponse(),
+                HttpStatus.NOT_FOUND
+            );
+        }
         return new ResponseWrapper(data, "Media", 200);
     }
 
@@ -95,14 +101,17 @@ export class MediaController {
     @ApiResponse({ status: 200, description: 'Successful update of media' })
     @ApiResponse({ status: 404, description: 'Media Not Found' })
     async updateMedia(@Body() FormInput: UpdateMedia ,@GetUserId() userId: string, @Param('id') id: string) {
+        const dataExist = await this.mediaService.getMediaById(id, null);
+        if (!dataExist) {
+            throw new HttpException(
+                new ResponseWrapper(null, "Media Not Found", HttpStatus.NOT_FOUND).toResponse(),
+                HttpStatus.NOT_FOUND
+            );
+        }
         const userData = await this.userService.getUserById(userId);
         if (userData && userData.isAdmin) {
             const data = await this.mediaService.updateMedia(id, FormInput);
             return new ResponseWrapper(data, "Media Updated", 200);
-        }
-        const data = await this.mediaService.getMediaById(id, userId);
-        if (!data) {
-            throw new HttpException('Media not found', HttpStatus.NOT_FOUND);
         }
         const updateData = await this.mediaService.updateMedia(id, FormInput);
         return new ResponseWrapper(updateData, "Media Updated", 200);
@@ -116,17 +125,20 @@ export class MediaController {
     @ApiResponse({ status: 204, description: 'Success with No Content' })
     @ApiResponse({ status: 404, description: 'Media Not Found' })
     async deleteMedia(@Param('id') id: string, @GetUserId() userId: string) {
-        const userData = await this.userService.getUserById(userId);
-        if (userData && userData.isAdmin) {
-            await this.mediaService.deleteMedia(id);
-            return new ResponseWrapper(null, "Media Updated", 204); // For Admin
-        }
         const data = await this.mediaService.getMediaById(id, userId);
         if (!data) {
-            throw new HttpException('Media not found', HttpStatus.NOT_FOUND);
+            throw new HttpException(
+                new ResponseWrapper(null, "Media Not Found", HttpStatus.NOT_FOUND).toResponse(),
+                HttpStatus.NOT_FOUND
+            );
         } else {
+            const userData = await this.userService.getUserById(userId);
+            if (userData && userData.isAdmin) {
+                await this.mediaService.deleteMedia(id);
+                return new ResponseWrapper(null, "Media Deleted", HttpStatus.NO_CONTENT);
+            }
             await this.mediaService.deleteMedia(id);
-            return new ResponseWrapper(null, "Media Updated", 204); // For User
+            return new ResponseWrapper(null, "Media Deleted", HttpStatus.NO_CONTENT); 
         }
     }
 
