@@ -34,6 +34,7 @@
     "@prisma/client": "^5.19.1",
     "@types/serve-static": "^1.15.7",
     "aws-sdk": "^2.1691.0",
+    "axios": "^1.7.7",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
     "class-transformer": "^0.5.1",

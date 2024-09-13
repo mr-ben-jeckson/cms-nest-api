@@ -1,13 +1,13 @@
 import { ResponseWrapper } from '@/ultils/app.wrapper';
-import { Controller, Post, Body, Req, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, Req, HttpException, HttpStatus, Res } from '@nestjs/common';
 import { AuthService } from '@/auth/auth.service';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { LoginSchema } from '@/http/user/login.schema';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RegisterSchema } from '@/http/user/register.schema';
 import { UserService } from '@/users/users.service';
 
-@Controller('api')
+@Controller('auth')
 @ApiTags('auth')
 export class AuthController {
     constructor(
@@ -19,27 +19,28 @@ export class AuthController {
     @ApiOperation({ summary: 'Login user' })
     @ApiBody({ type: LoginSchema })
     @ApiResponse({ status: 200, description: 'Successful login' })
-    async login(@Body() FormInput: LoginSchema) {
-        return new ResponseWrapper(await this.authService.login(FormInput.email, FormInput.password), "Success Login", 200);
+    async login(@Body() FormInput: LoginSchema, @Res() res: Response) {
+        const resource = new ResponseWrapper(await this.authService.login(FormInput.email, FormInput.password), "Success Login", HttpStatus.OK);
+        return res.status(resource.statusCode).json(resource.toResponse());
     }
 
     @Post('logout')
     @ApiOperation({ summary: 'Logout user' })
     @ApiBearerAuth()
-    @ApiResponse({ status: 200, description: 'Successful logout' })
-    async logout(@Req() req: Request) {
+    @ApiResponse({ status: 204, description: 'Successful logout' })
+    async logout(@Req() req: Request, @Res() res: Response) {
         const token = req.headers.authorization?.replace('Bearer ', '');
         if (token) {
             await this.authService.logout(token);
         }
-        return new ResponseWrapper(null, "Success Logout", 200);
+        return res.status(204)
     }
 
-    @Post('/register')
+    @Post('register')
     @ApiOperation({ summary: 'Register user' })
     @ApiBody({ type: RegisterSchema })
     @ApiResponse({ status: 200, description: 'Successful registration' })
-    async register(@Body() FormInput: RegisterSchema) {
+    async register(@Body() FormInput: RegisterSchema, @Res() res: Response) {
         const isEmailExist = await this.userService.getUserByEmail(FormInput.email);
         if (isEmailExist) {
             throw new HttpException(
@@ -54,6 +55,7 @@ export class AuthController {
                 HttpStatus.BAD_REQUEST
             );
         }
-        return new ResponseWrapper(await this.authService.register(FormInput), "Success Register", 200);
+        const resource = new ResponseWrapper(await this.authService.register(FormInput), "Successful Registration", 201);
+        return res.status(resource.statusCode).json(resource.toResponse());
     }
 }

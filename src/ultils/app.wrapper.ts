@@ -1,14 +1,14 @@
 import { HttpStatus } from '@nestjs/common';
 
 export class ResponseWrapper<T> {
-    result: T;
-    message: string;
-    statusCode: number;
+    readonly statusCode: number;
+    readonly message: string;
+    readonly result: T;
 
-    constructor(result: T, message: string = "Success", statusCode: number = HttpStatus.OK) {
-        this.result = result;
-        this.message = message;
+    constructor(result: T, message: string = 'Success', statusCode: number = HttpStatus.OK) {
         this.statusCode = statusCode;
+        this.message = message;
+        this.result = result;
     }
 
     toResponse() {
