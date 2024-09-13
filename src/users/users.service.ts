@@ -45,7 +45,7 @@ export class UserService {
                 [sortField]: sortDirection,
             },
             skip,
-            take: limit,
+            take: limit, 
         });
         const nextPage = page + 1;
         const previousPage = page - 1;
@@ -61,9 +61,10 @@ export class UserService {
 
     // Retrieve a user by ID
     async getUserById(id: string): Promise<User | null> {
-        return this.prisma.user.findUnique({
+        const user = await this.prisma.user.findUnique({
             where: { id },
         });
+        return user;
     }
 
     // Retrieve a user by email
