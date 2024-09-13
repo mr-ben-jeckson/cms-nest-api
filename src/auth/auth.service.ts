@@ -15,7 +15,7 @@ export class AuthService {
     async validateUser(email: string, password: string): Promise<any> {
         const user = await this.userService.getUserByEmail(email);
         if (user && await bcrypt.compare(password, user.password)) {
-            return { userId: user.id, email: user.email, isAdmin: user.isAdmin };
+            return { userId: user.id, email: user.email, isAdmin: user.isAdmin, isFlagged: user.isFlagged };
         }
         return null;
     }
@@ -24,6 +24,9 @@ export class AuthService {
         const user = await this.validateUser(email, password);
         if (!user) {
             throw new UnauthorizedException('Invalid credentials');
+        }
+        if (user.isFlagged) {
+            throw new UnauthorizedException('Your account is flagged');
         }
         const payload = { email: user.email, sub: user.userId, isAdmin: user.isAdmin };
         const accessToken = this.jwtService.sign(payload);

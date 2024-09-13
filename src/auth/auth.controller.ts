@@ -41,6 +41,7 @@ export class AuthController {
     @ApiBody({ type: RegisterSchema })
     @ApiResponse({ status: 200, description: 'Successful registration' })
     async register(@Body() FormInput: RegisterSchema, @Res() res: Response) {
+        FormInput.isAdmin = false; // Only allow to create admin in user controller
         const isEmailExist = await this.userService.getUserByEmail(FormInput.email);
         if (isEmailExist) {
             throw new HttpException(
