@@ -75,5 +75,5 @@ model Setting {
   id    Int    @id @default(autoincrement())
   name  String
   key   String @unique
-  value String
+  value String   @db.VarChar(1000)
 }
