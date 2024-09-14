@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
 import { Setting, Prisma } from '@prisma/client';
 import { BannerSchema } from '@/http/setting/banner.schema';
+import { v4 as uuidv4 } from 'uuid';  // Import UUID library
 
 @Injectable()
 export class SettingsService {
@@ -14,8 +15,12 @@ export class SettingsService {
     }
 
     async addSettingBanner(data: BannerSchema): Promise<Setting> {
+        const bannerKey = uuidv4();
         return this.prisma.setting.create({
-            data,
+            data: {
+                ...data,
+                key: data?.key || bannerKey,
+            }
         });
     }
 }
