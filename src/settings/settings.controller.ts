@@ -54,6 +54,8 @@ export class SettingsController {
                     new ResponseWrapper(null, "MediaId is invalid", HttpStatus.BAD_REQUEST).toResponse(),
                     HttpStatus.BAD_REQUEST
                 );
+            } else {
+                settingObj.imageUrl = checkId.url;
             }
             // header valid
             if(!settingObj.header) {
@@ -64,8 +66,24 @@ export class SettingsController {
                 settingObj.intro = '';
             }
             // button valid
-            if(!settingObj.button) {
-                settingObj.button = '';
+            if(settingObj.button) {
+                settingObj.button = true;
+            } else {
+                settingObj.button = false;
+            }
+            // button exist
+            if(settingObj.button && !settingObj.buttonName) {
+                throw new HttpException(
+                    new ResponseWrapper(null, "Button name is required", HttpStatus.BAD_REQUEST).toResponse(),
+                    HttpStatus.BAD_REQUEST
+                );
+            }
+            // button link exist
+            if(settingObj.button && !settingObj.buttonLink) {
+                throw new HttpException(
+                    new ResponseWrapper(null, "Button link is required", HttpStatus.BAD_REQUEST).toResponse(),
+                    HttpStatus.BAD_REQUEST
+                );
             }
             // created By
             if(!settingObj.createdBy) {
@@ -76,23 +94,31 @@ export class SettingsController {
                 settingObj.createdAt = new Date();
             }
             // active
-            if(!settingObj.active) {
+            if(settingObj.active) {
+                settingObj.active = true;
+            } else {
                 settingObj.active = false;
             }
             const {
                 mediaId,
+                imageUrl,
                 header,
                 intro,
                 button,
+                buttonName,
+                buttonLink,
                 createdBy,
                 createdAt,
                 active
             } = settingObj;
             Setting.value = JSON.stringify({
                 mediaId,
+                imageUrl,
                 header,
                 intro,
                 button,
+                buttonName,
+                buttonLink,
                 createdBy,
                 createdAt,
                 active

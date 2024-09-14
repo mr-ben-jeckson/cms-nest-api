@@ -11,6 +11,6 @@ export class BannerSchema {
     name: string;
 
     @ApiProperty({ description: 'The object of banner value' })
-    @IsJSON()
+    @IsString()
     value: string;
 }
