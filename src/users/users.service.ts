@@ -85,7 +85,7 @@ export class UserService {
         const user = await this.prisma.user.findFirst({
             where: { phone },
         });
-        if(user.phone) {
+        if(user?.phone) {
             return true;
         }
         return false;

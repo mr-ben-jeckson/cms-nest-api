@@ -49,12 +49,14 @@ export class AuthController {
                 HttpStatus.BAD_REQUEST
             );
         }
-        const isPhoneExist = await this.userService.isPhoneUsed(FormInput.phone);
-        if (isPhoneExist) {
-            throw new HttpException(
-                new ResponseWrapper(null, "Phone already exists", HttpStatus.BAD_REQUEST).toResponse(),
-                HttpStatus.BAD_REQUEST
-            );
+        if(FormInput?.phone) {
+            const isPhoneExist = await this.userService.isPhoneUsed(FormInput.phone);
+            if (isPhoneExist) {
+                throw new HttpException(
+                    new ResponseWrapper(null, "Phone already exists", HttpStatus.BAD_REQUEST).toResponse(),
+                    HttpStatus.BAD_REQUEST
+                );
+            }
         }
         const resource = new ResponseWrapper(await this.authService.register(FormInput), "Successful Registration", 201);
         return res.status(resource.statusCode).json(resource.toResponse());
