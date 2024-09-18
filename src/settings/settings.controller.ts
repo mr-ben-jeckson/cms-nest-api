@@ -1,8 +1,7 @@
 import { MediaService } from './../media/media.service';
-import { Setting } from '@prisma/client';
 import { SettingsService } from './settings.service';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Body, Controller, HttpException, HttpStatus, Post, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpException, HttpStatus, Post, Res, UseGuards } from '@nestjs/common';
 import { AdminGuard } from '@/auth/jwt.adminguard';
 import { UserService } from '@/users/users.service';
 import { PrismaService } from '@/prisma/prisma.service';
@@ -131,6 +130,14 @@ export class SettingsController {
             );
         }
         const resource = new ResponseWrapper(await this.settingsService.addSettingBanner(Setting), "Created Banner", 201);
+        return res.status(resource.statusCode).json(resource.toResponse());
+    }
+
+    @Get('/banners')
+    @ApiOperation({ summary: 'Get ative banners' })
+    @ApiResponse({ status: 200, description: 'Return active banners' })
+    async getActiveBanners(@Res() res: Response) {
+        const resource = new ResponseWrapper(await this.settingsService.getActiveBanners(), "Get Active Banners", 200);
         return res.status(resource.statusCode).json(resource.toResponse());
     }
 }

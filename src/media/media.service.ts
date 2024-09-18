@@ -100,7 +100,7 @@ export class MediaService {
 
     async getLimitedMedia(
         page: number = 1,
-        limit: number = 10,
+        limit: number = parseInt(process.env.ROW_LIMIT as string, 10) || 10,
         sortField: string = 'createdAt',
         sortDirection: 'asc' | 'desc' = 'desc',
         searchQuery: string | null = '',
