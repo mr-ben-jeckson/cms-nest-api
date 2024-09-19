@@ -134,10 +134,18 @@ export class SettingsController {
     }
 
     @Get('/banners')
-    @ApiOperation({ summary: 'Get ative banners' })
+    @ApiOperation({ summary: 'Get active banners' })
     @ApiResponse({ status: 200, description: 'Return active banners' })
     async getActiveBanners(@Res() res: Response) {
         const resource = new ResponseWrapper(await this.settingsService.getActiveBanners(), "Get Active Banners", 200);
+        return res.status(resource.statusCode).json(resource.toResponse());
+    }
+
+    @Get('/meta-default')
+    @ApiOperation({ summary: 'Get Default Meta'})
+    @ApiResponse({ status: 200, description: 'Return default meat'})
+    async getDefaultMetaTag(@Res() res: Response) {
+        const resource = new ResponseWrapper(await this.settingsService.getDefaultMetaTags(), "Get Default Meta", 200);
         return res.status(resource.statusCode).json(resource.toResponse());
     }
 }

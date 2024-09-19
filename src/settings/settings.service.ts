@@ -4,6 +4,7 @@ import { Setting, Prisma } from '@prisma/client';
 import { BannerSchema } from '@/http/setting/banner.schema';
 import { v4 as uuidv4 } from 'uuid';  // Import UUID library
 import { FormattedBanner } from '@/interface/banner.response';
+import { MetaFace } from '@/interface/meta.response';
 
 @Injectable()
 export class SettingsService {
@@ -40,7 +41,7 @@ export class SettingsService {
                 id: banner.id,
                 key: banner.key,
                 mediaId: parsedValue.mediaId,
-                url: parsedValue.url,
+                url: parsedValue.imageUrl,
                 header: parsedValue.header,
                 intro: parsedValue.intro,
                 button: parsedValue?.button,
@@ -49,5 +50,20 @@ export class SettingsService {
             };
         });
         return formattedBanners;
+    }
+
+    async getDefaultMetaTags(): Promise<MetaFace[]> {
+        const metaTags = await this.prisma.setting.findMany({
+            where: {
+                name: 'default:meta',
+            }
+        });
+        const metaTagsArray = metaTags.map(tag => {
+            return {
+                name: tag.name,
+                value: JSON.parse(tag.value),
+            };
+        });
+        return metaTagsArray;
     }
 }
