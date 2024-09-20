@@ -16,10 +16,10 @@ export class SettingsService {
         });
     }
 
-    async getSettingObject(parent: string, name: string) : Promise<{ name: string, value: string | number | boolean }> {
+    async getPrivateSettingObject(parent: string, name: string) : Promise<{ name: string, value: string | number | boolean }> {
         const settings = await this.prisma.setting.findFirst({
             where: {
-                name: 'public:settings',
+                name: 'private:settings',
             }
         });
         const setting = JSON.parse(settings.value);
@@ -28,7 +28,7 @@ export class SettingsService {
     }
 
     async bannerAllowed() : Promise<Boolean> {
-        const bannerLimited = await this.getSettingObject('SystemSetting', 'limitedBanner');
+        const bannerLimited = await this.getPrivateSettingObject('SystemSetting', 'limitedBanner');
         const bannerCount = await this.prisma.setting.count({
             where: {
                 name: 'banner:slider',
