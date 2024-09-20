@@ -16,6 +16,28 @@ export class SettingsService {
         });
     }
 
+    async getSettingObject(parent: string, name: string) : Promise<{ name: string, value: string | number | boolean }> {
+        const settings = await this.prisma.setting.findFirst({
+            where: {
+                name: 'public:settings',
+            }
+        });
+        const setting = JSON.parse(settings.value);
+        const settingValue: string | number | boolean = setting[parent][name];
+        return { name, value: settingValue };
+    }
+
+    async bannerAllowed() : Promise<Boolean> {
+        const bannerLimited = await this.getSettingObject('SystemSetting', 'limitedBanner');
+        const bannerCount = await this.prisma.setting.count({
+            where: {
+                name: 'banner:slider',
+            }
+        });
+        const limited: number = bannerLimited.value as number;
+        return bannerCount < limited;
+    }
+
     async addSettingBanner(data: BannerSchema): Promise<Setting> {
         const bannerKey = uuidv4();
         return this.prisma.setting.create({
@@ -29,7 +51,7 @@ export class SettingsService {
     async getActiveBanners() : Promise<FormattedBanner[]> {
         const banners = await this.prisma.setting.findMany({
             where: {
-                name: 'banner',
+                name: 'banner:slider',
                 value: {
                     contains: '"active":true',
                 },
@@ -65,5 +87,13 @@ export class SettingsService {
             };
         });
         return metaTagsArray;
+    }
+
+    async getDefaultMetaTagsByAdmin(): Promise<Setting []> {
+        return await this.prisma.setting.findMany({
+            where: {
+                name: 'default:meta',
+            }
+        })
     }
 }

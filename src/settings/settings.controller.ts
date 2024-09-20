@@ -3,8 +3,6 @@ import { SettingsService } from './settings.service';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Body, Controller, Get, HttpException, HttpStatus, Post, Res, UseGuards } from '@nestjs/common';
 import { AdminGuard } from '@/auth/jwt.adminguard';
-import { UserService } from '@/users/users.service';
-import { PrismaService } from '@/prisma/prisma.service';
 import { JwtAuthGuard } from '@/auth/jwt.authguard';
 import { BannerSchema } from '@/http/setting/banner.schema';
 import { GetUserId } from '@/ultils/app.user.decorator';
@@ -17,8 +15,6 @@ import { Response } from 'express';
 export class SettingsController {
     constructor(
         private readonly settingsService: SettingsService,
-        private readonly userService: UserService,
-        private readonly prismaPrimsa: PrismaService,
         private readonly mediaService: MediaService
     ) { }
 
@@ -29,13 +25,22 @@ export class SettingsController {
     @ApiResponse({ status: 201, description: 'Added new banner' })
     @ApiBody({ type: BannerSchema })
     async addBannerByAdmin(@Body() Setting: BannerSchema, @GetUserId() userId: string, @Res() res: Response) {
-        // banner
-        if(Setting.name != 'banner') {
+        // banner not allowed more
+        if(!await this.settingsService.bannerAllowed()) {
             throw new HttpException(
-                new ResponseWrapper(null, "Name must be banner", HttpStatus.BAD_REQUEST).toResponse(),
+                new ResponseWrapper(null, "Banner not allowed more", HttpStatus.BAD_REQUEST).toResponse(),
                 HttpStatus.BAD_REQUEST
             );
         }
+        // banner
+        if(Setting.name != 'banner:slider') {
+            throw new HttpException(
+                new ResponseWrapper(null, "Name must be banner:slider", HttpStatus.BAD_REQUEST).toResponse(),
+                HttpStatus.BAD_REQUEST
+            );
+        }
+        // format for database
+        Setting.name = "banner:slider"
         // String Json Check
         try {
             const settingObj = JSON.parse(Setting.value);
@@ -130,6 +135,16 @@ export class SettingsController {
             );
         }
         const resource = new ResponseWrapper(await this.settingsService.addSettingBanner(Setting), "Created Banner", 201);
+        return res.status(resource.statusCode).json(resource.toResponse());
+    }
+
+    @Get('/admin/meta-default')
+    @UseGuards(JwtAuthGuard)
+    @UseGuards(AdminGuard)
+    @ApiOperation({ summary: 'Get All Default Meta by Admin' })
+    @ApiResponse({ status: 200, description: 'Get All Default Meta by Admin' })
+    async getDefaultMetaTagsByAdmin(@Res() res: Response) {
+        const resource = new ResponseWrapper(await this.settingsService.getDefaultMetaTagsByAdmin(), "Get All Default Meta by Admin", 200);
         return res.status(resource.statusCode).json(resource.toResponse());
     }
 
