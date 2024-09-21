@@ -27,6 +27,14 @@ export class SettingsService {
         return { name, value: settingValue };
     }
 
+    async getAllBannersByAdmin(): Promise<Setting[]> {
+        return this.prisma.setting.findMany({
+            where: {
+                name: 'banner:slider',
+            }
+        });
+    }
+    
     async bannerAllowed() : Promise<Boolean> {
         const bannerLimited = await this.getPrivateSettingObject('SystemSetting', 'limitedBanner');
         const bannerCount = await this.prisma.setting.count({
@@ -49,12 +57,26 @@ export class SettingsService {
     }
 
     async updateSettingBanner(data: BannerSchema, key: string): Promise<Setting> {
+        const previous = await this.prisma.setting.findUnique({ where: { key } });
+        const previousData = JSON.parse(previous.value);
+        const mergeData = JSON.parse(data.value);
+        mergeData.createdBy = previousData.createdBy;
+        mergeData.createdAt = previousData.createdAt;
+        data.value = JSON.stringify(mergeData);
         return this.prisma.setting.update({
             where: {
                 key: key,
             },
             data,
         })
+    }
+
+    async deleteSettingBanner(key: string): Promise<Setting> {
+        return this.prisma.setting.delete({
+            where: {
+                key: key,
+            }
+        });
     }
 
     async getActiveBanners() : Promise<FormattedBanner[]> {

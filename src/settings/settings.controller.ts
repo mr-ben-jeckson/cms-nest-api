@@ -1,7 +1,7 @@
 import { MediaService } from './../media/media.service';
 import { SettingsService } from './settings.service';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Body, Controller, Get, HttpException, HttpStatus, Param, Post, Put, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Post, Put, Res, UseGuards } from '@nestjs/common';
 import { AdminGuard } from '@/auth/jwt.adminguard';
 import { JwtAuthGuard } from '@/auth/jwt.authguard';
 import { BannerSchema } from '@/http/setting/banner.schema';
@@ -138,19 +138,29 @@ export class SettingsController {
         return res.status(resource.statusCode).json(resource.toResponse());
     }
 
+    @Get('/admin/banners/')
+    @UseGuards(JwtAuthGuard)
+    @UseGuards(AdminGuard)
+    @ApiOperation({ summary: 'Get all banners' })
+    @ApiResponse({ status: 200, description: 'Return all banners', type: [BannerSchema] })
+    async getAllBannersByAdmin(@Res() res: Response) {
+        const resource = new ResponseWrapper(await this.settingsService.getAllBannersByAdmin(), "All Banners", 200);
+        return res.status(resource.statusCode).json(resource.toResponse());
+    }
+
     @Put('/admin/banners/:id')
     @UseGuards(JwtAuthGuard)
     @UseGuards(AdminGuard)
-    @ApiOperation({ summary: 'Updating landing page banner' })
+    @ApiOperation({ summary: 'Update a banner by Key' })
     @ApiResponse({ status: 200, description: 'Updated Successful' })
-    @ApiParam({ name: 'id', type: String, required: true, description: 'Banner ID' })
+    @ApiParam({ name: 'key', type: String, required: true, description: 'Banner Key' })
     @ApiBody({ type: BannerSchema })
     async updateBannerByAdmin(@Param('id') id: string, @Body() Setting: BannerSchema, @GetUserId() userId: string, @Res() res: Response) {
-        // banner not allowed more
-        if (!await this.settingsService.bannerAllowed()) {
+        // Not Founded by key
+        if (!await this.settingsService.getSettingByKey(id)) {
             throw new HttpException(
-                new ResponseWrapper(null, "Banner not allowed more", HttpStatus.BAD_REQUEST).toResponse(),
-                HttpStatus.BAD_REQUEST
+                new ResponseWrapper(null, "Not Founded", HttpStatus.NOT_FOUND).toResponse(),
+                HttpStatus.NOT_FOUND
             );
         }
         // banner
@@ -210,14 +220,10 @@ export class SettingsController {
                     HttpStatus.BAD_REQUEST
                 );
             }
-            // created By
-            if (!settingObj.createdBy) {
-                settingObj.createdBy = userId;
-            }
-            // created At
-            if (!settingObj.createdAt) {
-                settingObj.createdAt = new Date();
-            }
+            // updated By
+                settingObj.updatedBy = userId;
+            // updated At
+                settingObj.updatedAt = new Date();
             // active
             if (settingObj.active) {
                 settingObj.active = true;
@@ -232,8 +238,8 @@ export class SettingsController {
                 button,
                 buttonName,
                 buttonLink,
-                createdBy,
-                createdAt,
+                updatedBy,
+                updatedAt,
                 active
             } = settingObj;
             Setting.value = JSON.stringify({
@@ -244,8 +250,8 @@ export class SettingsController {
                 button,
                 buttonName,
                 buttonLink,
-                createdBy,
-                createdAt,
+                updatedBy,
+                updatedAt,
                 active
             });
 
@@ -256,6 +262,23 @@ export class SettingsController {
             );
         }
         const resource = new ResponseWrapper(await this.settingsService.updateSettingBanner(Setting, id), "Updated Banner Successfully", 200);
+        return res.status(resource.statusCode).json(resource.toResponse());
+    }
+
+    @Delete('/admin/banners/:id')
+    @UseGuards(JwtAuthGuard)
+    @UseGuards(AdminGuard)
+    @ApiOperation({ summary: 'Delete a banner by Key' })
+    @ApiResponse({ status: 200, description: 'Banner deleted successfully' })
+    @ApiParam({ name: 'key', type: String, required: true, description: 'Banner Key' })
+    async deleteBannerByAdmin(@Param('id') id: string, @Res() res: Response) {
+        if (!await this.settingsService.getSettingByKey(id)) {
+            throw new HttpException(
+                new ResponseWrapper(null, "Not Founded", HttpStatus.NOT_FOUND).toResponse(),
+                HttpStatus.NOT_FOUND
+            );
+        }
+        const resource = new ResponseWrapper(await this.settingsService.deleteSettingBanner(id), "Deleted Banner Successfully", 200);
         return res.status(resource.statusCode).json(resource.toResponse());
     }
 
