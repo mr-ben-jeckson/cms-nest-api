@@ -48,6 +48,15 @@ export class SettingsService {
         });
     }
 
+    async updateSettingBanner(data: BannerSchema, key: string): Promise<Setting> {
+        return this.prisma.setting.update({
+            where: {
+                key: key,
+            },
+            data,
+        })
+    }
+
     async getActiveBanners() : Promise<FormattedBanner[]> {
         const banners = await this.prisma.setting.findMany({
             where: {
