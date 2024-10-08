@@ -16,6 +16,12 @@ $ git clone git@github.com:mr-ben-jeckson/cms-nest-api.git
 $ cd your-project-directory
 $ npm install
 
+#perparation
+$ cat .env.example // copy .env.example content
+$ nano .env // create new .env file
+
+#create new mysql database and set DATABASE_URL in .env
+
 # development
 $ npm run start
 
