@@ -24,6 +24,8 @@ $ cat .env.example // copy .env.example content
 $ nano .env // create new .env file
 
 # create new mysql database and set DATABASE_URL in .env
+$ npx migrate dev
+$ npm run seed
 
 # development
 $ npm run start
