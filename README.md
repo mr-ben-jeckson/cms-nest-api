@@ -3,24 +3,27 @@
 </p>
 
 # Welcome to Nest CMS server!
-nest cms is a fully REST api server for content management system using Prisma ORM with Mysql Database.
+Nest-CMS-api is a fully REST api server for content management system using Prisma ORM with Mysql Database.
+
+## For NestJS Documentation
+Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
 
 ### Installation
 
 ```bash
-#download
+# download
 $ mkdir your project // create new folder
 $ git clone git@github.com:mr-ben-jeckson/cms-nest-api.git
 
-#installation
+# installation
 $ cd your-project-directory
 $ npm install
 
-#perparation
+# perparation
 $ cat .env.example // copy .env.example content
 $ nano .env // create new .env file
 
-#create new mysql database and set DATABASE_URL in .env
+# create new mysql database and set DATABASE_URL in .env
 
 # development
 $ npm run start
